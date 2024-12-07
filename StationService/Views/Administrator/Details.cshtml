@@ -1,0 +1,82 @@
+﻿@model AdministratorOutputDetailDto
+
+@section title {
+    @if (Model != null)
+    {
+        <h3>Administrator Details</h3>
+    }
+}
+
+@if (Model != null)
+{
+    <dl class="row">
+        <!-- id -->
+        <dt class="col-2">
+            @Html.DisplayNameFor(Model => Model.Id)
+        </dt>
+        <dd class="col-10">
+            @Html.DisplayFor(Model => Model.Id)
+        </dd>
+
+        <!-- FirstName -->
+        <dt class="col-2">
+            @Html.DisplayNameFor(Model => Model.FirstName)
+        </dt>
+        <dd class="col-10">
+            @Html.DisplayFor(Model => Model.FirstName)
+        </dd>
+
+        <!-- FirstName -->
+        <dt class="col-2">
+            @Html.DisplayNameFor(Model => Model.FamilyName)
+        </dt>
+        <dd class="col-10">
+            @Html.DisplayFor(Model => Model.FamilyName)
+        </dd>
+
+        <!-- Email -->
+        <dt class="col-2">
+            @Html.DisplayNameFor(Model => Model.Email)
+        </dt>
+        <dd class="col-10">
+            @Html.DisplayFor(Model => Model.Email)
+        </dd>
+
+        <!-- GasStation -->
+        <dt class="col-2">
+            @Html.DisplayNameFor(Model => Model.gasStations)
+        </dt>
+        <dd class="col-10">
+            <table class="table">
+                <tr>
+                    <th>Name</th>
+                    <th>Location</th>
+                    <th>Supervisor</th>
+                    <th></th>
+                    
+                </tr>
+                @if (Model.gasStations != null)
+                {
+                    @foreach (var item in Model.gasStations)
+                    {
+                        <tr>
+                            <td>@Html.DisplayFor(modelItem => item.Name)</td>
+                            <td>@Html.DisplayFor(modelItem => item.Location)</td>
+                            <td>@Html.DisplayFor(modelItem => item.SupervisorFirstName) @Html.DisplayFor(modelItem => item.SupervisorFamilyName)</td>
+                            <td></td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td>No Data .</td>
+                    </tr>
+                }
+                
+            </table>
+        </dd>
+
+
+    </dl>
+}

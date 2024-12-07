@@ -1,0 +1,67 @@
+﻿@model AdministratorOutputDetailDto
+
+@section title {
+    @if (Model != null)
+    {
+        <h3> Administrator: @Model.FirstName @Model.FamilyName.ToUpper()</h3>
+    }
+}
+
+@if (Model != null)
+{
+
+    <form asp-controller="administrator" asp-action="edit" method="post">
+
+        <!-- to display error message -->
+        <div class="text-danger" asp-validation-summary="All"></div>
+        <!-- FirstName -->
+        <div class="row mb-3">
+            <div class="col-2">
+                <label asp-for="FirstName" class="col-form-label"></label>
+            </div>
+            <div class="col-6">
+                <input type="text" asp-for="FirstName" class="form-control text-capitalize" />
+            </div>
+            <div class="col">
+                <span class="text-bg-danger" asp-validation-for="FirstName"></span>
+            </div>
+        </div>
+
+        <!-- FamilyName -->
+        <div class="row mb-3">
+            <div class="col-2">
+                <label asp-for="FamilyName" class="col-form-label"></label>
+            </div>
+            <div class="col-6">
+                <input type="text" asp-for="FamilyName" class="form-control text-uppercase" />
+            </div>
+            <div class="col">
+                <span class="text-bg-danger" asp-validation-for="FamilyName"></span>
+            </div>
+        </div>
+
+        <!-- Email -->
+        <div class="row mb-3">
+            <div class="col-2">
+                <label asp-for="Email" class="col-form-label"></label>
+            </div>
+            <div class="col-6">
+                <input type="text" asp-for="Email" class="form-control text-lowercase" />
+            </div>
+            <div class="col">
+                <span class="text-bg-danger" asp-validation-for="Email"></span>
+            </div>
+        </div>
+
+        <!-- Save Button -->
+        <div class="row mb-3">
+            <div class="col-2">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+            <div class="col-6">
+            </div>
+        </div>
+
+    </form>
+
+}

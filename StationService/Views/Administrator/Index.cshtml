@@ -1,0 +1,54 @@
+﻿@model List<AdministratorOutputDto>
+
+@{
+    ViewData["Page"] = "Index";
+}
+
+@section title {
+    <h3>Administrators</h3>
+ 
+    <p>
+        <a asp-action="Create">Create New</a>
+    </p>
+}
+
+
+@if (Model != null && Model.Count() > 0)
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Firstname</th>
+                <th>Family Name</th>
+                <th>Email</th>
+                <th></th>
+                <th></th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var administrator in Model)
+            {
+                <tr>
+                    <td>@administrator.FirstName</td>
+                    <td>@administrator.FamilyName</td>
+                    <td>@administrator.Email</td>
+                    <td>
+                        <a class="btn btn-link" asp-action="edit" asp-route-id="@administrator.Id">Edit</a> |
+                        <a class="btn btn-link" asp-action="Details" asp-route-id="@administrator.Id">Details</a> |
+                        <a class="btn btn-link" asp-action="delete" asp-route-id="@administrator.Id" onclick="return confirmDelete()">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table> 
+}
+
+@section Scripts {
+    <script>
+        function confirmDelete() {
+            return confirm("Are you sure you want to delete this administrator? ");
+        }
+    </script>
+}
+
