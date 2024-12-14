@@ -5,6 +5,9 @@
     {
         <h3> Administrator: @Model.FirstName @Model.FamilyName.ToUpper()</h3>
     }
+    <p>
+        <a asp-action="index">Back to List</a>
+    </p>
 }
 
 @if (Model != null)
@@ -56,10 +59,10 @@
         <!-- Save Button -->
         <div class="row mb-3">
             <div class="col-2">
-                <input type="submit" value="Save" class="btn btn-primary" />
+                <input type="submit" value="Save" class="btn btn-primary" />                          
             </div>
-            <div class="col-6">
-            </div>
+           <!--  <div class="col-6">
+             </div> -->
         </div>
 
     </form>

@@ -1,0 +1,130 @@
+﻿@model GasStationOutputDetailDto
+
+@section title {
+    @if (Model != null)
+    {
+        <h3>Gas Station Details</h3>
+    }
+
+    <p>
+        <a asp-action="index">Back to List</a>
+    </p>
+}
+
+@if (Model != null)
+{
+    <dl class="row">
+        <!-- id -->
+        <dt class="col-2">
+            @Html.DisplayNameFor(Model => Model.Id)
+        </dt>
+        <dd class="col-10">
+            @Html.DisplayFor(Model => Model.Id)
+        </dd>
+
+        <!-- FirstName -->
+        <dt class="col-2">
+            @Html.DisplayNameFor(Model => Model.Name)
+        </dt>
+        <dd class="col-10">
+            @Html.DisplayFor(Model => Model.Name)
+        </dd>
+
+        <!-- Location -->
+        <dt class="col-2">
+            @Html.DisplayNameFor(Model => Model.Location)
+        </dt>
+        <dd class="col-10">
+            @Html.DisplayFor(Model => Model.Location)
+        </dd>
+
+        <!-- SupervisorName -->
+        <dt class="col-2">
+            @Html.DisplayNameFor(Model => Model.SupervisorName)
+        </dt>
+        <dd class="col-10">
+            @Html.DisplayFor(Model => Model.SupervisorName)
+        </dd>
+
+        <!-- AdministratorName -->
+        <dt class="col-2">
+            @Html.DisplayNameFor(Model => Model.AdministratorName)
+        </dt>
+        <dd class="col-10">
+            @Html.DisplayFor(Model => Model.AdministratorName)
+        </dd>
+
+        <!-- GasStationAttendant -->
+        <dt class="col-2">
+            @Html.DisplayNameFor(Model => Model.GasStationAttendants)
+        </dt>
+        <dd class="col-10">
+            <table class="table">
+                <tr>
+                    <th>FirstName</th>
+                    <th>FamilyName</th>
+                    <th>Email</th>
+                    <th>Shift</th>
+                    <th>Gas Station</th>
+                    <th></th>
+
+                </tr>
+                @if (Model.GasStationAttendants != null)
+                {
+                    @foreach (var item in Model.GasStationAttendants)
+                    {
+                        <tr>
+                            <td>@Html.DisplayFor(modelItem => item.FirstName)</td>
+                            <td>@Html.DisplayFor(modelItem => item.FamilyName)</td>
+                            <td>@Html.DisplayFor(modelItem => item.Email) </td>
+                            <td>@Html.DisplayFor(modelItem => item.Shift) </td>
+                            <td>@Html.DisplayFor(modelItem => item.GasStationName) </td>
+                            <td></td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td>No Data .</td>
+                    </tr>
+                }
+
+            </table>
+        </dd>
+
+        <!-- DispensingUnits -->
+        <dt class="col-2">
+            @Html.DisplayNameFor(Model => Model.DispensingUnits)
+        </dt>
+        <dd class="col-10">
+            <table class="table">
+                <tr>
+                    <th>Unit Number</th>
+                    <th>Gas Station</th>
+                    <th></th>
+
+                </tr>
+                @if (Model.DispensingUnits != null )
+                {
+                    @foreach (var item in Model.DispensingUnits)
+                    {
+                        <tr>
+                            <td>@Html.DisplayFor(modelItem => item.UnitNumber)</td>
+                            <td>@Html.DisplayFor(modelItem => item.GasStationName)</td>
+                            <td></td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td>No Data .</td>
+                    </tr>
+                }
+
+            </table>
+        </dd>
+
+    </dl>
+}

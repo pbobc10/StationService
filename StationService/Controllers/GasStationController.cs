@@ -1,21 +1,30 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using StationService.Business_Layer.Interfaces;
+using StationService.DTOs;
 using StationService.Interfaces;
 using StationService.Models;
+using StationService.Services;
 
 namespace StationService.Controllers
 {
     public class GasStationController : Controller
     {
-        private readonly IGasStationRepository _gasStationRepository;
-        private readonly IAdministratorRepository _administratorRepository;
+        private readonly ISupervisorFacade _supervisorFacade;
+        private readonly IAdministratorFacade _administratorFacade;
+        private readonly IGasStationFacade _gasStationFacade;
         private readonly ILogger<GasStationController> _logger;
+        private readonly IMapper _mapper;
 
-        public GasStationController(IGasStationRepository gasStationRepository, IAdministratorRepository administratorRepository, ILogger<GasStationController> logger)
+        public GasStationController(IGasStationFacade gasStationFacade, ILogger<GasStationController> logger,IAdministratorFacade administratorFacade, ISupervisorFacade supervisorFacade, IMapper mapper)
         {
-            _gasStationRepository = gasStationRepository;
-            _administratorRepository = administratorRepository;
+            _gasStationFacade = gasStationFacade;
             _logger = logger;
+            _supervisorFacade = supervisorFacade;
+            _administratorFacade = administratorFacade;
+            _mapper = mapper;
 
         }
 
@@ -24,7 +33,11 @@ namespace StationService.Controllers
         {
             try
             {
-                var gasStations = await _gasStationRepository.GetAllAsync();
+                var gasStations = await _gasStationFacade.GetAllAsync();
+                if (gasStations == null)
+                {
+                    return NotFound();
+                }
                 return View(gasStations);
             }
             catch (Exception ex)
@@ -40,7 +53,7 @@ namespace StationService.Controllers
         {
             try
             {
-                var gasStation = await _gasStationRepository.GetAsync(id);
+                var gasStation = await _gasStationFacade.GetByIdAsync(id);
                 if (gasStation == null)
                 {
                     return NotFound();
@@ -57,25 +70,36 @@ namespace StationService.Controllers
         // GET: GasStationController/Create
         public async Task<IActionResult> Create()
         {
-            ViewBag.Administrator = await _administratorRepository.GetAllAsync();
-            return View();
+            var supervisors = await _supervisorFacade.GetAllAsync();
+            var administrators = await _administratorFacade.GetAllAsync();
+
+            var viewModel = new GasStationCreateViewModel
+            {
+                Supervisors = supervisors.Select(s => new SelectListItem
+                {
+                    Value =  s.Id.ToString(),
+                    Text = $"{s.FirstName} {s.FamilyName}"
+                }).ToList(),
+                Administrators = administrators.Select(a => new SelectListItem
+                { 
+                    Value= a.Id.ToString(),
+                    Text = $"{a.FirstName} {a.FamilyName}"
+                }).ToList()
+            };
+
+            return View(viewModel);
         }
 
         // POST: GasStationController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(GasStation gasStation)
+        public async Task<IActionResult> Create(GasStationInputDto gasStation)
         {
-            //var admin = await _administratorRepository.GetAsync(gasStation.AdministratorId);
-            //gasStation.Administrator = admin;
-            //  ModelState.Remove("Supervisor");
-            //ModelState.Remove("Administrator");
-
             if (ModelState.IsValid)
             {
                 try
                 {
-                    await _gasStationRepository.AddAsync(gasStation);
+                    await _gasStationFacade.AddAsync(gasStation);
                     return RedirectToAction(nameof(Index));
                 }
                 catch (Exception ex)
@@ -84,26 +108,72 @@ namespace StationService.Controllers
                     ModelState.AddModelError("", "An error occurred while creating the gasStation.");
                 }
             }
-            ViewBag.Administrator = (await  _administratorRepository.GetAllAsync());
-            return View(gasStation);
+
+            // If the model state is invalid, reload the dropdowns
+            var supervisors = await _supervisorFacade.GetAllAsync();
+            var administrators = await _administratorFacade.GetAllAsync();
+
+            var viewModel = new GasStationCreateViewModel
+            {
+                GasStation = gasStation,
+                Supervisors = supervisors.Select(s => new SelectListItem
+                {
+                    Value = s.Id.ToString(),
+                    Text = $"{s.FirstName} {s.FamilyName}"
+                }).ToList(),
+                Administrators = administrators.Select(a => new SelectListItem
+                {
+                    Value = a.Id.ToString(),
+                    Text = $"{a.FirstName} {a.FamilyName}"
+                }).ToList()
+            };
+
+            return View(viewModel);
         }
 
         // GET: GasStationController/Edit/5
+        // GET: GasStationController/Edit/5
         public async Task<IActionResult> Edit(int id)
         {
-            var gasStation = await _gasStationRepository.GetAsync(id);
+            // Charger la station-service existante
+            var gasStation = await _gasStationFacade.GetByIdAsync(id);
             if (gasStation == null)
             {
-                _logger.LogWarning("gasStation with ID {Id} not found for editing.", id);
+                _logger.LogWarning("GasStation with ID {Id} not found for editing.", id);
                 return NotFound();
             }
-            return View(gasStation);
+
+            // Charger les superviseurs et administrateurs
+            var supervisors = await _supervisorFacade.GetAllAsync();
+            var administrators = await _administratorFacade.GetAllAsync();
+
+            // Préparer le ViewModel
+            var viewModel = new GasStationCreateViewModel
+            {
+                // Convert GasStationOutputDetailDto to GasStationInputDto using AutoMapper
+                GasStation = _mapper.Map<GasStationInputDto>(gasStation),
+                Supervisors = supervisors.Select(s => new SelectListItem
+                {
+                    Value = s.Id.ToString(),
+                    Text = $"{s.FirstName} {s.FamilyName}",
+                    Selected = s.Id == gasStation.SupervisorId // Sélectionne le superviseur existant
+                }).ToList(),
+                Administrators = administrators.Select(a => new SelectListItem
+                {
+                    Value = a.Id.ToString(),
+                    Text = $"{a.FirstName} {a.FamilyName}",
+                    Selected = a.Id == gasStation.AdministratorId // Sélectionne l'administrateur existant
+                }).ToList()
+            };
+
+            return View(viewModel);
         }
+
 
         // POST: GasStationController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, GasStation gasStation)
+        public async Task<IActionResult> Edit(int id, GasStationInputDto gasStation)
         {
             if (id != gasStation.Id)
             {
@@ -114,46 +184,59 @@ namespace StationService.Controllers
             {
                 try
                 {
-                    await _gasStationRepository.UpdateAsync(gasStation);
+                    await _gasStationFacade.UpdateAsync(id, gasStation);
                     return RedirectToAction(nameof(Index));
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "An error occurred while updating the gasStation with ID {Id}.", id);
-                    ModelState.AddModelError("", "An error occurred while updating the gasStation.");
+                    ModelState.AddModelError("ModelError", "An error occurred while updating the gasStation.");
                 }
             }
-            return View(gasStation);
-        }
 
-        // GET: GasStationController/Delete/5
-        public async Task<IActionResult> Delete(int id)
-        {
-            var gasStation = await _gasStationRepository.GetAsync(id);
-            if (gasStation == null)
+
+            // Charger les superviseurs et administrateurs
+            var supervisors = await _supervisorFacade.GetAllAsync();
+            var administrators = await _administratorFacade.GetAllAsync();
+
+            // Préparer le ViewModel
+            var viewModel = new GasStationCreateViewModel
             {
-                _logger.LogWarning("gasStation with ID {Id} not found for deletion.", id);
-                return NotFound();
-            }
-            return View(gasStation);
+                // Convert GasStationOutputDetailDto to GasStationInputDto using AutoMapper
+                GasStation = _mapper.Map<GasStationInputDto>(gasStation),
+                Supervisors = supervisors.Select(s => new SelectListItem
+                {
+                    Value = s.Id.ToString(),
+                    Text = $"{s.FirstName} {s.FamilyName}",
+                    Selected = s.Id == gasStation.SupervisorId // Sélectionne le superviseur existant
+                }).ToList(),
+                Administrators = administrators.Select(a => new SelectListItem
+                {
+                    Value = a.Id.ToString(),
+                    Text = $"{a.FirstName} {a.FamilyName}",
+                    Selected = a.Id == gasStation.AdministratorId // Sélectionne l'administrateur existant
+                }).ToList()
+            };
+
+            return View(viewModel);
         }
 
-        // POST: GasStationController/Delete/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Delete(int id, GasStation gasStation)
+        public async Task<IActionResult> Delete(int id)
         {
             try
             {
-                await _gasStationRepository.DeleteAsync(id);
-                return RedirectToAction(nameof(Index));
+                // Appeler la suppression via le facade
+                await _gasStationFacade.DeleteAsync(id);
+                TempData["SuccessMessage"] = "gasStation deleted successfully.";
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred while deleting the gasStation with ID {Id}.", id);
-                ModelState.AddModelError("", "An error occurred while deleting the gasStation.");
+                TempData["ErrorMessage"] = "An error occurred while deleting the gasStation.";
             }
-            return RedirectToAction(nameof(Delete), new { id });
+
+            // Rediriger vers la liste des administrateurs
+            return RedirectToAction(nameof(Index));
         }
     }
 }

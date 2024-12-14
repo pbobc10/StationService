@@ -86,6 +86,8 @@ namespace StationService.Controllers
         // GET: AdministratorController/Edit/5
         public async Task<IActionResult> Edit(int id)
         {
+            ViewBag.Action = "edit";
+
             var administrator = await _administratorFacade.GetByIdAsync(id);
             if (administrator == null)
             {

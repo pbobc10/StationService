@@ -42,7 +42,8 @@ namespace StationService
 
             // Facade service
             builder.Services.AddScoped<IAdministratorFacade, AdministratorFacade>();
-
+            builder.Services.AddScoped<ISupervisorFacade, SupervisorFacade>();
+            builder.Services.AddScoped<IGasStationFacade, GasStationFacade>();
 
             var app = builder.Build();
 

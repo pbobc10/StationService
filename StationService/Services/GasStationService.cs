@@ -55,12 +55,14 @@ namespace StationService.Services
 
         public async Task<IEnumerable<GasStation>> GetAllAsync()
         {
-            return await _context.GasStations.ToListAsync();
+            return await _context.GasStations.AsNoTracking().Include(gs => gs.Administrator).Include(gs => gs.Supervisor).ToListAsync();
         }
 
         public async Task<GasStation> GetAsync(int id)
         {
-            return await _context.GasStations.FindAsync(id);
+            return await _context.GasStations.AsNoTracking().Include(gs => gs.Administrator).Include(gs => gs.Supervisor)
+                .Include(gs => gs.GasStationAttendants).Include(gs => gs.DispensingUnits)
+                .FirstOrDefaultAsync(gs => gs.Id == id);
         }
 
         public async Task UpdateAsync(GasStation entity)
@@ -68,7 +70,7 @@ namespace StationService.Services
             try
             {
                 // Check if the entity exists
-                var existingGasStations = await _context.GasStations.Include(g => g.DispensingUnits).Include(g => g.GasStationAttendants).FirstOrDefaultAsync(g => g.Id == entity.Id);
+                var existingGasStations = await _context.GasStations.AsNoTracking().Include(g => g.DispensingUnits).Include(g => g.GasStationAttendants).FirstOrDefaultAsync(g => g.Id == entity.Id);
 
                 if (existingGasStations == null)
                 {
@@ -78,6 +80,9 @@ namespace StationService.Services
 
                 // Update the entity properties
                 existingGasStations = entity;
+
+                // Mark the entity as modified
+                _context.Entry(existingGasStations).State = EntityState.Modified;
 
                 // Save changes to the database
                 await _context.SaveChangesAsync();

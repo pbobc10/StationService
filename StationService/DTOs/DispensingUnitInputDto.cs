@@ -5,7 +5,7 @@ namespace StationService.DTOs
 {
     public class DispensingUnitInputDto
     {
-        [Required, StringLength(1)]
+        [Required, StringLength(1,ErrorMessage ="Can only have one letter")]
         public string UnitNumber { get; set; }
 
         [Required]

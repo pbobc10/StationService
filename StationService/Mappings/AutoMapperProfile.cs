@@ -6,7 +6,8 @@ namespace StationService.Mappings
 {
     public class AutoMapperProfile : Profile
     {
-        public AutoMapperProfile() {
+        public AutoMapperProfile()
+        {
             // Administrator mappings
             CreateMap<AdministratorInputDto, Administrator>();
             CreateMap<Administrator, AdministratorOutputDetailDto>();
@@ -33,15 +34,28 @@ namespace StationService.Mappings
             CreateMap<GasStationAttendant, GasStationAttendantOutputDto>().ForMember(dest => dest.GasStationName, opt => opt.MapFrom(src => src.GasStation.Name));
 
             // GasStation mappings
-            CreateMap<GasMeterInputDto, GasStation>();
-            CreateMap<GasStation, GasStationOutputDto>().ForMember(dest => dest.SupervisorFamilyName, opt => opt.MapFrom(src => src.Supervisor.FirstName))
-                .ForMember(dest => dest.SupervisorFamilyName, opt => opt.MapFrom(src => src.Supervisor.FamilyName))
-                .ForMember(dest => dest.AdministratorFamilyName, opt => opt.MapFrom(src => src.Administrator.FirstName))
-                .ForMember(dest => dest.AdministratorFamilyName, opt => opt.MapFrom(src => src.Administrator.FirstName));
+            CreateMap<GasStationInputDto, GasStation>();
+            CreateMap<GasStation, GasStationOutputDto>()
+                .ForMember(dest => dest.DispensingUnitCount, opt => opt.MapFrom(src => src.DispensingUnits.Count))
+                .ForMember(dest => dest.GasStationAttendantCount, opt => opt.MapFrom(src => src.GasStationAttendants.Count))
+                .ForMember(dest => dest.SupervisorName, opt => opt.MapFrom(src => src.Supervisor != null ? $"{src.Supervisor.FirstName} {src.Supervisor.FamilyName}" : null))
+                .ForMember(dest => dest.AdministratorName, opt => opt.MapFrom(src => $"{src.Administrator.FirstName} {src.Administrator.FamilyName}"));
+
+            CreateMap<GasStation, GasStationOutputDetailDto>()
+                .ForMember(dest => dest.SupervisorName, opt => opt.MapFrom(src => src.Supervisor != null ? $"{src.Supervisor.FirstName} {src.Supervisor.FamilyName}" : null))
+                 .ForMember(dest => dest.AdministratorName, opt => opt.MapFrom(src => $"{src.Administrator.FirstName} {src.Administrator.FamilyName}"));
+
+            CreateMap<GasStationOutputDetailDto, GasStationInputDto>()
+                .ForMember(dest => dest.SupervisorId, opt => opt.MapFrom(src => src.SupervisorId))
+                .ForMember(dest => dest.AdministratorId, opt => opt.MapFrom(src => src.AdministratorId))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.Location, opt => opt.MapFrom(src => src.Location));
 
             // Supervisor
             CreateMap<SupervisorInputDto, Supervisor>();
-            CreateMap<Supervisor, SupervisorOutputDto>().ForMember(dest => dest.GasStationName, opt => opt.MapFrom(src => src.Station.Name));
+            CreateMap<Supervisor, SupervisorOutputDto>()
+                .ForMember(dest => dest.GasStationName, opt => opt.MapFrom(src => src.Station.Name));
+
 
         }
     }

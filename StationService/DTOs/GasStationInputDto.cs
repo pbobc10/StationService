@@ -5,10 +5,12 @@ namespace StationService.DTOs
 {
     public class GasStationInputDto
     {
-        [Required, StringLength(30)]
+        public int Id { get; set; }
+
+        [Required, StringLength(30,ErrorMessage = "Name cannot be longer than 30 characters.")]
         public string Name { get; set; }
 
-        [Required, StringLength(50)]
+        [StringLength(50, ErrorMessage = "Location cannot be longer than 50 characters.")]
         public string Location { get; set; }
 
         public int? SupervisorId { get; set; }

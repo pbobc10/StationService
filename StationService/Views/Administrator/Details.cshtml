@@ -5,6 +5,10 @@
     {
         <h3>Administrator Details</h3>
     }
+
+    <p>
+        <a asp-action="index">Back to List</a>
+    </p>
 }
 
 @if (Model != null)
@@ -62,7 +66,7 @@
                         <tr>
                             <td>@Html.DisplayFor(modelItem => item.Name)</td>
                             <td>@Html.DisplayFor(modelItem => item.Location)</td>
-                            <td>@Html.DisplayFor(modelItem => item.SupervisorFirstName) @Html.DisplayFor(modelItem => item.SupervisorFamilyName)</td>
+                            <td>@Html.DisplayFor(modelItem => item.SupervisorName) </td>
                             <td></td>
                         </tr>
                     }
