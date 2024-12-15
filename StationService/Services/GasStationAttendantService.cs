@@ -58,7 +58,7 @@ namespace StationService.Services
 
         public async Task<GasStationAttendant> GetAsync(int id)
         {
-            return await _context.GasStationAttendants.FindAsync(id);
+            return await _context.GasStationAttendants.AsNoTracking().Include(g => g.GasStation).FirstOrDefaultAsync(g => g.Id == id);
         }
 
         public async Task UpdateAsync(GasStationAttendant entity)
@@ -66,7 +66,7 @@ namespace StationService.Services
             try
             {
                 // Check if the entity exists
-                var existingGasStationAttendants = await _context.GasStationAttendants.FindAsync(entity.Id);
+                var existingGasStationAttendants = await _context.GasStationAttendants.AsNoTracking().FirstOrDefaultAsync(g => g.Id == entity.Id);
 
                 if (existingGasStationAttendants == null)
                 {
@@ -76,6 +76,9 @@ namespace StationService.Services
 
                 // Update the entity properties
                 existingGasStationAttendants = entity;
+
+                // Mark the entity as modified
+                _context.Entry(existingGasStationAttendants).State = EntityState.Modified;
 
                 // Save changes to the database
                 await _context.SaveChangesAsync();

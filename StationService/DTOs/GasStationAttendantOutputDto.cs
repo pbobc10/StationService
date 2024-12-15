@@ -12,5 +12,7 @@ namespace StationService.DTOs
         public ShiftType Shift { get; set; }
 
         public string GasStationName { get; set; }
+
+        public int GasStationId { get; set; }
     }
 }

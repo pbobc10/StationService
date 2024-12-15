@@ -1,0 +1,69 @@
+﻿@model GasStationAttendantOutputDto
+
+@section title {
+    @if (Model != null)
+    {
+        <h3> Gas Station Attendant Details</h3>
+    }
+
+    <p>
+        <a asp-action="index">Back to List</a>
+    </p>
+}
+
+@if (Model != null)
+{
+    <dl class="row">
+        <!-- id -->
+        <dt class="col-2">
+            @Html.DisplayNameFor(Model => Model.Id)
+        </dt>
+        <dd class="col-10">
+            @Html.DisplayFor(Model => Model.Id)
+        </dd>
+
+        <!-- FirstName -->
+        <dt class="col-2">
+            @Html.DisplayNameFor(Model => Model.FirstName)
+        </dt>
+        <dd class="col-10">
+            @Html.DisplayFor(Model => Model.FirstName)
+        </dd>
+
+        <!-- FirstName -->
+        <dt class="col-2">
+            @Html.DisplayNameFor(Model => Model.FamilyName)
+        </dt>
+        <dd class="col-10">
+            @Html.DisplayFor(Model => Model.FamilyName)
+        </dd>
+
+        <!-- Email -->
+        <dt class="col-2">
+            @Html.DisplayNameFor(Model => Model.Email)
+        </dt>
+        <dd class="col-10">
+            @Html.DisplayFor(Model => Model.Email)
+        </dd>
+        
+        <!-- Shift -->
+        <dt class="col-2">
+            @Html.DisplayNameFor(Model => Model.Shift)
+        </dt>
+        <dd class="col-10">
+            @Html.DisplayFor(Model => Model.Shift)
+        </dd>
+
+        <!-- GasStation -->
+        <dt class="col-2">
+            @Html.DisplayNameFor(Model => Model.GasStationName)
+        </dt>
+        <dd class="col-10">
+            @Html.DisplayFor(Model => Model.GasStationName)
+        </dd>
+    </dl>
+}
+else
+{
+    <p> No Data found.</p>
+}

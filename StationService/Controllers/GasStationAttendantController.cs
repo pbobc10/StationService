@@ -1,5 +1,10 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using StationService.Business_Layer.Interfaces;
+using StationService.DTOs;
+using StationService.Helpers;
 using StationService.Interfaces;
 using StationService.Models;
 
@@ -7,13 +12,17 @@ namespace StationService.Controllers
 {
     public class GasStationAttendantController : Controller
     {
-        private readonly IGasStationAttendantRepository _gasStationAttendantRepository;
+        private readonly IGasStationAttendantFacade _gasStationAttendantFacade;
         private readonly ILogger<GasStationAttendantController> _logger;
+        private readonly IGasStationFacade _gasStationFacade;
+        private readonly IMapper _mapper;
 
-        public GasStationAttendantController(IGasStationAttendantRepository gasStationAttendantRepository, ILogger<GasStationAttendantController> logger)
+        public GasStationAttendantController(IGasStationAttendantFacade gasStationAttendantFacade, IGasStationFacade gasStationFacade, IMapper mapper, ILogger<GasStationAttendantController> logger)
         {
-            _gasStationAttendantRepository = gasStationAttendantRepository;
+            _gasStationAttendantFacade = gasStationAttendantFacade;
+            _gasStationFacade = gasStationFacade;
             _logger = logger;
+            _mapper = mapper;
 
         }
 
@@ -22,7 +31,7 @@ namespace StationService.Controllers
         {
             try
             {
-                var gasStationAttendants = await _gasStationAttendantRepository.GetAllAsync();
+                var gasStationAttendants = await _gasStationAttendantFacade.GetAllAsync();
                 return View(gasStationAttendants);
             }
             catch (Exception ex)
@@ -38,7 +47,7 @@ namespace StationService.Controllers
         {
             try
             {
-                var gasStationAttendant = await _gasStationAttendantRepository.GetAsync(id);
+                var gasStationAttendant = await _gasStationAttendantFacade.GetByIdAsync(id);
                 if (gasStationAttendant == null)
                 {
                     return NotFound();
@@ -53,48 +62,101 @@ namespace StationService.Controllers
         }
 
         // GET: GasStationAttendantController/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            return View();
+            // Load the gas Stations
+            var gasStations = await _gasStationFacade.GetAllAsync();
+
+
+            var viewModel = new GasStationAttendantCreateViewModel
+            {
+                GasStations = gasStations.Select(g => new SelectListItem
+                {
+                    Value = g.Id.ToString(),
+                    Text = $"{g.Name}"
+
+                }).ToList(),
+                //Populate the shift dropdown
+                Shifts = EnumHelper.GetEnumSelectList<ShiftType>()
+            };
+
+            return View(viewModel);
         }
 
         // POST: GasStationAttendantController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(GasStationAttendant gasStationAttendant)
+        public async Task<IActionResult> Create(GasStationAttendantInputDto gasStationAttendant)
         {
+
             if (ModelState.IsValid)
             {
                 try
                 {
-                    await _gasStationAttendantRepository.AddAsync(gasStationAttendant);
+                    await _gasStationAttendantFacade.AddAsync(gasStationAttendant);
+                    TempData["SuccessMessage"] = "gasStationAttendant created successfully.";
                     return RedirectToAction(nameof(Index));
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "An error occurred while creating the gasStationAttendant.");
                     ModelState.AddModelError("", "An error occurred while creating the gasStationAttendant.");
+                    TempData["ErrorMessage"] = "An error occurred while creating the gasStationAttendant.";
                 }
             }
-            return View(gasStationAttendant);
+
+            // If the model state is invalid, reload the dropdowns
+            var gasStations = await _gasStationFacade.GetAllAsync();
+
+            var viewModel = new GasStationAttendantCreateViewModel
+            {
+                GasStationAttendant = gasStationAttendant,
+                GasStations = gasStations.Select(g => new SelectListItem
+                {
+                    Value = g.Id.ToString(),
+                    Text = $"{g.Name}"
+
+                }).ToList(),
+                //Populate the shift dropdown
+                Shifts = EnumHelper.GetEnumSelectList<ShiftType>()
+            };
+
+            return View(viewModel);
         }
 
         // GET: GasStationAttendantController/Edit/5
         public async Task<IActionResult> Edit(int id)
         {
-            var gasStationAttendant = await _gasStationAttendantRepository.GetAsync(id);
+            var gasStationAttendant = await _gasStationAttendantFacade.GetByIdAsync(id);
             if (gasStationAttendant == null)
             {
                 _logger.LogWarning("gasStationAttendant with ID {Id} not found for editing.", id);
                 return NotFound();
             }
-            return View(gasStationAttendant);
+
+            // Load the Gas Stations
+            var gasStations = await _gasStationFacade.GetAllAsync();
+
+            var viewModel = new GasStationAttendantCreateViewModel
+            {
+                GasStationAttendant = _mapper.Map<GasStationAttendantInputDto>(gasStationAttendant),
+                GasStations = gasStations.Select(g => new SelectListItem
+                {
+                    Value = g.Id.ToString(),
+                    Text = $"{g.Name}"
+
+                }).ToList(),
+                //Populate the shift dropdown
+                Shifts = EnumHelper.GetEnumSelectList<ShiftType>()
+            };
+
+            return View(viewModel);
         }
 
         // POST: GasStationAttendantController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, GasStationAttendant gasStationAttendant)
+        public async Task<IActionResult> Edit(int id, GasStationAttendantInputDto gasStationAttendant)
         {
             if (id != gasStationAttendant.Id)
             {
@@ -105,46 +167,62 @@ namespace StationService.Controllers
             {
                 try
                 {
-                    await _gasStationAttendantRepository.UpdateAsync(gasStationAttendant);
+                    await _gasStationAttendantFacade.UpdateAsync(id, gasStationAttendant);
+                    TempData["SuccessMessage"] = "gasStationAttendant edited successfully.";
                     return RedirectToAction(nameof(Index));
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "An error occurred while updating the gasStationAttendant with ID {Id}.", id);
                     ModelState.AddModelError("", "An error occurred while updating the gasStationAttendant.");
+                    TempData["ErrorMessage"] = "An error occurred while updating the gasStationAttendant.";
                 }
             }
-            return View(gasStationAttendant);
+
+            // If the model state is invalid, reload the dropdowns
+            var gasStations = await _gasStationFacade.GetAllAsync();
+
+            var viewModel = new GasStationAttendantCreateViewModel
+            {
+                GasStationAttendant = _mapper.Map<GasStationAttendantInputDto>(gasStationAttendant),
+                GasStations = gasStations.Select(g => new SelectListItem
+                {
+                    Value = g.Id.ToString(),
+                    Text = $"{g.Name}"
+
+                }).ToList(),
+                //Populate the shift dropdown
+                Shifts = EnumHelper.GetEnumSelectList<ShiftType>()
+            };
+
+            return View(viewModel);
         }
 
-        // GET: GasStationAttendantController/Delete/5
-        public async Task<IActionResult> Delete(int id)
-        {
-            var gasStationAttendant = await _gasStationAttendantRepository.GetAsync(id);
-            if (gasStationAttendant == null)
-            {
-                _logger.LogWarning("gasStationAttendant with ID {Id} not found for deletion.", id);
-                return NotFound();
-            }
-            return View(gasStationAttendant);
-        }
 
         // POST: GasStationAttendantController/Delete/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Delete(int id, GasStationAttendant gasStationAttendant)
+        public async Task<IActionResult> Delete(int id, GasStationAttendantOutputDto gasStationAttendant)
         {
             try
             {
-                await _gasStationAttendantRepository.DeleteAsync(id);
-                return RedirectToAction(nameof(Index));
+                if (id == gasStationAttendant.Id)
+                {
+                    await _gasStationAttendantFacade.DeleteAsync(id);
+                    TempData["SuccessMessage"] = "gasStationAttendant Deleted successfully.";
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = "gasStationAttendant id not exist ";
+                    return RedirectToAction(nameof(Index));
+                }
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred while deleting the gasStationAttendant with ID {Id}.", id);
-                ModelState.AddModelError("", "An error occurred while deleting the gasStationAttendant.");
+                TempData["ErrorMessage"] = "An error occurred while deleting the gasStationAttendant.";
             }
-            return RedirectToAction(nameof(Delete), new { id });
+
+            // Rediriger vers la liste des gasStationAttendants
+            return RedirectToAction(nameof(Index));
         }
     }
 }

@@ -32,6 +32,7 @@ namespace StationService.Mappings
             // GasStationAttendant mappings
             CreateMap<GasStationAttendantInputDto, GasStationAttendant>();
             CreateMap<GasStationAttendant, GasStationAttendantOutputDto>().ForMember(dest => dest.GasStationName, opt => opt.MapFrom(src => src.GasStation.Name));
+            CreateMap<GasStationAttendantOutputDto, GasStationAttendantInputDto>();
 
             // GasStation mappings
             CreateMap<GasStationInputDto, GasStation>();
