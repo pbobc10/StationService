@@ -56,6 +56,7 @@ namespace StationService.Mappings
             CreateMap<Supervisor, SupervisorOutputDto>()
                 .ForMember(dest => dest.GasStationName, opt => opt.MapFrom(src => src.Station.Name));
 
+            CreateMap<SupervisorOutputDto,SupervisorInputDto>();
 
         }
     }

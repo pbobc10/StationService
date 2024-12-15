@@ -60,7 +60,7 @@ namespace StationService.Services
 
         public async Task<Supervisor> GetAsync(int id)
         {
-            return await _context.Supervisors.FindAsync(id);
+            return await _context.Supervisors.AsNoTracking().Include(s => s.Station ).FirstOrDefaultAsync(s => s.Id == id);
         }
 
         public async Task UpdateAsync(Supervisor entity)
@@ -68,7 +68,7 @@ namespace StationService.Services
             try
             {
                 // Check if the entity exists
-                var existingSupervisors = await _context.Supervisors.FindAsync(entity.Id);
+                var existingSupervisors = await _context.Supervisors.AsNoTracking().FirstOrDefaultAsync(s => s.Id == entity.Id);
 
                 if (existingSupervisors == null)
                 {
@@ -78,6 +78,9 @@ namespace StationService.Services
 
                 // Update the entity properties
                 existingSupervisors = entity;
+
+                // Mark the entity as modified
+                _context.Entry(existingSupervisors).State = EntityState.Modified;
 
                 // Save changes to the database
                 await _context.SaveChangesAsync();

@@ -1,0 +1,77 @@
+﻿@model SupervisorCreateViewModel
+
+@section title{
+    <h3>Create Supervisor</h3>
+    <p>
+        <a asp-action="index" >Back to List</a>
+    </p>
+}
+
+<form asp-controller="supervisor" asp-action="create"  method="post">
+
+    <!-- to display error message -->
+    <div class="text-danger" asp-validation-summary="All"></div>
+    <!-- FirstName -->
+    <div class="row mb-3">
+        <div class="col-2">
+            <label asp-for="Supervisor.FirstName" class="col-form-label"></label>
+        </div>
+        <div class="col-6">
+            <input type="text" asp-for="Supervisor.FirstName" class="form-control text-capitalize" />
+        </div>
+        <div class="col">
+            <span class="text-bg-danger" asp-validation-for="Supervisor.FirstName"></span>
+        </div>
+    </div>
+
+    <!-- FamilyName -->
+    <div class="row mb-3">
+        <div class="col-2">
+            <label asp-for="Supervisor.FamilyName" class="col-form-label"></label>
+        </div>
+        <div class="col-6">
+            <input type="text" asp-for="Supervisor.FamilyName" class="form-control text-uppercase" />
+        </div>
+        <div class="col">
+            <span class="text-bg-danger" asp-validation-for="Supervisor.FamilyName"></span>
+        </div>
+    </div>
+
+    <!-- Email -->
+    <div class="row mb-3">
+        <div class="col-2">
+            <label asp-for="Supervisor.Email" class="col-form-label"></label>
+        </div>
+        <div class="col-6">
+            <input type="text" asp-for="Supervisor.Email" class="form-control text-lowercase" />
+        </div>
+        <div class="col">
+            <span class="text-bg-danger" asp-validation-for="Supervisor.Email"></span>
+        </div>
+    </div>
+
+    <!-- SupervisorId -->
+    <div class="row mb-3">
+        <div class="col-2">
+            <label asp-for="Supervisor.GasStationId" class="col-form-label"></label>
+        </div>
+        <div class="col-6">
+            <select asp-for="Supervisor.GasStationId" class="form-control" asp-items="Model.GasStations">
+                <option value="">-- Select GasStation --</option>
+            </select>
+        </div>
+        <div class="col">
+            <span class="text-bg-danger" asp-validation-for="Supervisor.GasStationId"></span>
+        </div>
+    </div>
+
+    <!-- Add Button -->
+    <div class="row mb-3">
+        <div class="col-2">
+            <input type="submit" value="Add" class="btn btn-primary" /> <input type="reset"  class="btn btn-outline-primary" />
+        </div>
+        <div class="col-6">
+        </div>
+    </div>
+
+</form>

@@ -46,7 +46,7 @@ namespace StationService.Business_Layer.Services
             {
                 throw new KeyNotFoundException("Administrator not found.");
             }
-            _mapper.Map(supervisor, inputDto);
+            _mapper.Map(inputDto, supervisor);
             await _supervisorRepository.UpdateAsync(supervisor);
         }
     }

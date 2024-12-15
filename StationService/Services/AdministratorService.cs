@@ -85,7 +85,6 @@ namespace StationService.Services
               existingAdministrator = entity;
 
                 // Mark the entity as modified
-
                 _context.Entry(existingAdministrator).State = EntityState.Modified;
 
                 // save changes to the database

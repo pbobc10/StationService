@@ -72,12 +72,14 @@ namespace StationService.Controllers
                 try
                 {
                     await _administratorFacade.AddAsync(administrator);
+                    TempData["SuccessMessage"] = "Administrator created successfully.";
                     return RedirectToAction(nameof(Index));
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "An error occurred while creating the administrator.");
                     ModelState.AddModelError("", "An error occurred while creating the administrator.");
+                    TempData["ErrorMessage"] = "An error occurred while creating the administrator.";
                 }
             }
             return View(administrator);
@@ -112,12 +114,14 @@ namespace StationService.Controllers
                 try
                 {
                     await _administratorFacade.UpdateAsync(id, administrator);
+                    TempData["SuccessMessage"] = "Administrator edited successfully.";
                     return RedirectToAction(nameof(Index));
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "An error occurred while updating the administrator with ID {Id}.", id);
                     ModelState.AddModelError("ModelError", "An error occurred while updating the administrator.");
+                    TempData["ErrorMessage"] = "An error occurred while updating the administrator.";
                 }
             }
             return View(administrator);

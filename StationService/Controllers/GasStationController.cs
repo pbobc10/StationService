@@ -100,12 +100,14 @@ namespace StationService.Controllers
                 try
                 {
                     await _gasStationFacade.AddAsync(gasStation);
+                    TempData["SuccessMessage"] = "gasStation created successfully.";
                     return RedirectToAction(nameof(Index));
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "An error occurred while creating the gasStation.");
                     ModelState.AddModelError("", "An error occurred while creating the gasStation.");
+                    TempData["ErrorMessage"] = "An error occurred while creating the gasStation.";
                 }
             }
 
@@ -185,12 +187,14 @@ namespace StationService.Controllers
                 try
                 {
                     await _gasStationFacade.UpdateAsync(id, gasStation);
+                    TempData["SuccessMessage"] = "gasStation edited successfully.";
                     return RedirectToAction(nameof(Index));
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "An error occurred while updating the gasStation with ID {Id}.", id);
                     ModelState.AddModelError("ModelError", "An error occurred while updating the gasStation.");
+                    TempData["ErrorMessage"] = "An error occurred while updating the gasStation.";
                 }
             }
 
